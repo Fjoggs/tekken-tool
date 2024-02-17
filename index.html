@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="main.css" />
+    <title>TNT - Tekken Notation Tool</title>
+  </head>
+  <body>
+    <header>
+      <h1>Tekken Notation Tool (TNT)</h1>
+    </header>
+    <p class="wip">WIP. Expect bugs</p>
+    <div class="input-row">
+      <div class="input-group">
+        <input id="input" type="text" placeholder="Notation" />
+        <button id="reset">Reset</button>
+      </div>
+      <div class="options">
+        <div class="input-group-secondary">
+          <label for="input-style">Input style</label>
+          <select id="input-style">
+            <option value="arcade">Arcade</option>
+            <option value="ps">PS</option>
+            <option value="xbox">Xbox</option>
+            <option value="keyboard">Keyboard</option>
+          </select>
+        </div>
+        <div class="input-group-secondary">
+          <label for="separator">Separator</label>
+          <select id="separator">
+            <option value=" ">Space</option>
+            <option value=";">Comma (;)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="outputContainer" class="output-container"></div>
+  </body>
+  <script src="./index.js"></script>
+  <footer>
+    Created by Fjoggs. PM me on the
+    <a href="https://discord.gg/r4CEBabS">Bear discord</a>for any suggestions or
+    feedback
+  </footer>
+</html>
