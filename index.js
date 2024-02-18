@@ -109,7 +109,8 @@ const convertInput = (rawNotations) => {
   filters.forEach((filter) => {
     rawNotations = rawNotations.replaceAll(filter, "");
   });
-  const splitNotationRegex = /([a-z])+|([1-4\+\,\~\-\/])+|([A-Z])*/g;
+  // const splitNotationRegex = /([a-z])+|([1-4\+\,\~\-\/])+|([A-Z])*/g;
+  const notationRegex = /([a-z])+|([1-4\+\,\-\/])+|([A-Z])+|([a-z0-9\~\+]+)/g;
   // const notationRegex = /([a-zA-Z\~1-4\+\,\~\-\/])+/g;
   const directionRegex = /[a-z]/g;
   const holdDirectionRegex = /[A-Z]/g;
@@ -118,72 +119,26 @@ const convertInput = (rawNotations) => {
   notations.forEach((notation) => {
     console.log("notation", notation);
     if (notation.length > 0) {
-      const inputs = notation.match(splitNotationRegex);
+      const inputs = notation.match(notationRegex);
       if (inputs) {
-        let bracketInput = notation.indexOf("~") !== -1;
-        if (bracketInput) {
-          const openBracket = document.createElement("div");
-          openBracket.className = "bracket";
-          openBracket.textContent = "[";
-          outputContainer.appendChild(openBracket);
-        }
         inputs.forEach((input) => {
-          console.log("input", input);
-          if (input.indexOf("~") !== -1) {
-            console.log("Ignore symbol");
-          } else if (input.search(directionRegex) !== -1) {
-            if (directions[input]) {
-              outputContainer.appendChild(addDirection(input));
-            } else {
-              [...input].forEach((direction) => {
-                outputContainer.appendChild(addDirection(direction));
-              });
-            }
+          if (input.search(directionRegex) !== -1) {
+            addInput(input, directions, addDirection);
           } else if (input.search(holdDirectionRegex) !== -1) {
-            if (holdDirections[input]) {
-              outputContainer.appendChild(addHoldDirection(input));
-            } else {
-              [...input].forEach((holdDirection) => {
-                outputContainer.appendChild(addHoldDirection(holdDirection));
-              });
-            }
+            addInput(input, holdDirections, addHoldDirection);
           } else if (input.search(limbRegex) !== -1) {
             if (input.indexOf("+") !== -1) {
               outputContainer.appendChild(addLimbInputs(input));
             } else {
-              let orInput =
-                input.indexOf("-") !== -1 || input.indexOf("/") !== -1;
               input = input.replaceAll(",", "");
-              input = input.replaceAll("~", "");
-
               [...input].forEach((limb) => {
-                if (limb.indexOf("-") !== -1 || limb.indexOf("/") !== -1) {
-                  const orElement = document.createElement("div");
-                  orElement.className = "or-input";
-                  orElement.textContent = "( or";
-                  outputContainer.appendChild(orElement);
-                } else {
-                  outputContainer.appendChild(addLimbInputs(limb));
-                }
+                outputContainer.appendChild(addLimbInputs(limb));
               });
-
-              if (orInput) {
-                const orElement = document.createElement("div");
-                orElement.className = "or-input";
-                orElement.textContent = ")";
-                outputContainer.appendChild(orElement);
-              }
             }
           } else {
             console.log("no match", input);
           }
         });
-        if (bracketInput) {
-          const closeBracket = document.createElement("div");
-          closeBracket.className = "bracket";
-          closeBracket.textContent = "]";
-          outputContainer.appendChild(closeBracket);
-        }
       }
       addArrow();
     }
@@ -193,6 +148,39 @@ const convertInput = (rawNotations) => {
     outputContainer.removeChild(outputContainer.lastChild);
   }
 };
+// let orInput =
+// input.indexOf("-") !== -1 || input.indexOf("/") !== -1;
+
+/*               if (orInput) {
+                const orElement = document.createElement("div");
+                orElement.className = "or-input";
+                orElement.textContent = ")";
+                outputContainer.appendChild(orElement);
+              }
+ */
+/* 
+if (limb.indexOf("-") !== -1 || limb.indexOf("/") !== -1) {
+                  const orElement = document.createElement("div");
+                  orElement.className = "or-input";
+                  orElement.textContent = "( or";
+                  outputContainer.appendChild(orElement);
+                }
+  */
+
+// let bracketInput = notation.indexOf("~") !== -1;
+// notation = notation.replaceAll("~", "");
+// if (bracketInput) {
+// const openBracket = document.createElement("div");
+// openBracket.className = "bracket";
+// openBracket.textContent = "[";
+// outputContainer.appendChild(openBracket);
+// }
+// if (bracketInput) {
+// const closeBracket = document.createElement("div");
+// closeBracket.className = "bracket";
+// closeBracket.textContent = "]";
+// outputContainer.appendChild(closeBracket);
+// }
 
 const addDirection = (notation) => {
   const direction = document.createElement("div");
@@ -250,6 +238,16 @@ const addLimbInputs = (notation) => {
     output.appendChild(outputButton);
   });
   return output;
+};
+
+const addInput = (input, inputMapping, inputFunc) => {
+  if (inputMapping[input]) {
+    outputContainer.appendChild(inputFunc(input));
+  } else {
+    [...input].forEach((direction) => {
+      outputContainer.appendChild(inputFunc(direction));
+    });
+  }
 };
 
 const addArrow = () => {
