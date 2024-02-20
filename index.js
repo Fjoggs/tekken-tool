@@ -23,6 +23,65 @@ styleInput.addEventListener("change", (event) => {
 
 const filters = ["HBS", "T!", "HD", ""];
 
+const additionalMoves = {
+  iws: "Instant while standing",
+  H: "During Heat",
+  R: "Rage",
+  P: "Successfully parry",
+  J: "Jumping",
+  WS: "While standing",
+  FC: "Full crouch",
+  hFC: "Half crouch",
+  BT: "Back turned",
+  SS: "Sidestep",
+  SSL: "Sidestep left",
+  SSR: "Sidestep right",
+  FUFT: "Face up, feet towards",
+  FUFA: "Face up, feet away",
+  FDFT: "Face down, feet towards",
+  FDFA: "Face down, feet away",
+  CD: "Crouch dash",
+  OTG: 'Grounded opponent ("on the ground")',
+  i: 'Active framed ("impact frames")',
+  r: "Recovery",
+  a: 'Opponent floats during recovery and recovers grounded ("airborne")',
+  back: "Opponent recovers back turned",
+  c: "Opponent recovers crouching",
+  down: 'Opponent is grounded during recovery and recovers grounded ("downed")',
+  g: "Opponent can guard during recovery",
+  s: 'Opponent floats during recovery and recovers standing ("stagger")',
+  h: "High",
+  m: "Mid",
+  l: "Low",
+  s: "Special mid",
+  a: "Aerial",
+  H: "High (hits grounded)",
+  M: "Mid (hits grounded)",
+  L: "Low (hits grounded)",
+  S: "Special mid (hits grounded)",
+  t: "Throw",
+  pc: "Powercrush",
+  ps: "Parry state",
+  js: "Jumping state",
+  cs: "Crouching state",
+  fs: "Floating state, i.e. can be juggled",
+  is: "Intangible state",
+  gs: "Grounded state",
+  "S!": "Screw",
+  "T!": "Tornado",
+  "W!": "Wall splat / Wall bounce",
+  "WB!": "Wall break",
+  "F!": "Floor break",
+  "FB!": "Floor break",
+  "BB!": "Balcony break",
+  CH: "Counter hit",
+  CL: "Clean hit",
+  "()": "Whiffed or blocked moves",
+  "(x?)": "Repeat a string x times",
+  "[]": "Damage or frame advantage of the following",
+  "!": "Unblockable (modifier)",
+};
+
 const directions = {
   n: "★",
   ub: "↖",
@@ -39,6 +98,8 @@ const directions = {
   hcf: "←↙↓↘→",
   hcb: "→↘↓↙←",
   dp: "→↓↓→",
+  cc: "[↑★]",
+  ss: "[↑★] (or [↓★])",
 };
 
 const holdDirections = {
@@ -110,7 +171,8 @@ const convertInput = (rawNotations) => {
     rawNotations = rawNotations.replaceAll(filter, "");
   });
   // const splitNotationRegex = /([a-z])+|([1-4\+\,\~\-\/])+|([A-Z])*/g;
-  const notationRegex = /([a-z])+|([1-4\+\,\-\/])+|([A-Z])+|([a-z0-9\~\+]+)/g;
+  // const notationRegex = /([a-z])+|([1-4\+\,\-\/])+|([A-Z])+|([a-z0-9\~\+\!]+)/g;
+  const notationRegex = /([a-z])+|([1-4\+\,\-\/])+|([a-zA-Z0-9\~\+\!\,\-\/])+/g;
   // const notationRegex = /([a-zA-Z\~1-4\+\,\~\-\/])+/g;
   const directionRegex = /[a-z]/g;
   const holdDirectionRegex = /[A-Z]/g;
@@ -122,7 +184,13 @@ const convertInput = (rawNotations) => {
       const inputs = notation.match(notationRegex);
       if (inputs) {
         inputs.forEach((input) => {
-          if (input.search(directionRegex) !== -1) {
+          console.log("input", input);
+          if (additionalMoves.hasOwnProperty(input)) {
+            console.log("adding additional input");
+            const text = document.createElement("div");
+            text.textContent = additionalMoves[input];
+            outputContainer.appendChild(text);
+          } else if (input.search(directionRegex) !== -1) {
             addInput(input, directions, addDirection);
           } else if (input.search(holdDirectionRegex) !== -1) {
             addInput(input, holdDirections, addHoldDirection);
@@ -136,6 +204,7 @@ const convertInput = (rawNotations) => {
               });
             }
           } else {
+            console.log("am[input]", additionalMoves[input]);
             console.log("no match", input);
           }
         });
