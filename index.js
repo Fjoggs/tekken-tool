@@ -179,14 +179,11 @@ const convertInput = (rawNotations) => {
   const limbRegex = /[1-4]/g;
   const notations = rawNotations.split(separator);
   notations.forEach((notation) => {
-    console.log("notation", notation);
     if (notation.length > 0) {
       const inputs = notation.match(notationRegex);
       if (inputs) {
         inputs.forEach((input) => {
-          console.log("input", input);
           if (additionalMoves.hasOwnProperty(input)) {
-            console.log("adding additional input");
             const text = document.createElement("div");
             text.textContent = additionalMoves[input];
             outputContainer.appendChild(text);
@@ -204,7 +201,6 @@ const convertInput = (rawNotations) => {
               });
             }
           } else {
-            console.log("am[input]", additionalMoves[input]);
             console.log("no match", input);
           }
         });
