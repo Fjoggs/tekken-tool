@@ -9,18 +9,6 @@ const styleOptions = ["arcade", "ps", "xbox", "keyboard"];
 let separator = separatorOptions[separatorInput.selectedIndex];
 let style = styleOptions[styleInput.selectedIndex];
 
-separatorInput.addEventListener("change", (event) => {
-  separator = event.target.value;
-  outputContainer.replaceChildren();
-  convertInput(inputElement.value);
-});
-
-styleInput.addEventListener("change", (event) => {
-  style = event.target.value;
-  outputContainer.replaceChildren();
-  convertInput(inputElement.value);
-});
-
 const filters = ["HBS", "T!", "HD", ""];
 
 const additionalMoves = {
@@ -124,47 +112,40 @@ separatorInput.addEventListener("change", (event) => {
   separator = event.target.value;
   outputContainer.replaceChildren();
   convertInput(inputElement.value);
-  const urlParams = new URLSearchParams(window.location.search);
-  urlParams.set("separator", event.target.value);
-  const newUrl = `?style=${encodeURIComponent(
-    urlParams.get("style")
-  )}&notation=${encodeURIComponent(
-    urlParams.get("notation")
-  )}&separator=${encodeURIComponent(urlParams.get("separator"))}`;
-  window.history.pushState({}, "", newUrl);
+  setUrl("separator", event.target.value);
 });
 
 styleInput.addEventListener("change", (event) => {
   style = event.target.value;
   outputContainer.replaceChildren();
   convertInput(inputElement.value);
-  const urlParams = new URLSearchParams(window.location.search);
-  urlParams.set("style", event.target.value);
-  const newUrl = `?style=${encodeURIComponent(
-    urlParams.get("style")
-  )}&notation=${encodeURIComponent(
-    urlParams.get("notation")
-  )}&separator=${encodeURIComponent(urlParams.get("separator"))}`;
-  window.history.pushState({}, "", newUrl);
+  setUrl("style", event.target.value);
 });
 
 inputElement.addEventListener("keyup", (event) => {
   outputContainer.replaceChildren();
   convertInput(event.target.value);
-  const urlParams = new URLSearchParams(window.location.search);
-  urlParams.set("notation", event.target.value);
-  const newUrl = `?style=${encodeURIComponent(
-    urlParams.get("style")
-  )}&notation=${encodeURIComponent(
-    urlParams.get("notation")
-  )}&separator=${encodeURIComponent(urlParams.get("separator"))}`;
-  window.history.pushState({}, "", newUrl);
+  setUrl("notation", event.target.value);
 });
 
 resetButton.addEventListener("click", (event) => {
   outputContainer.replaceChildren();
   inputElement.value = "";
 });
+
+const setUrl = (key, value) => {
+  const urlParams = new URLSearchParams(window.location.search);
+  urlParams.set(key, value);
+  const newUrl = `?style=${encodeURIComponent(
+    getOrElse(urlParams, "style", "arcade")
+  )}&notation=${encodeURIComponent(
+    getOrElse(urlParams, "notation", "")
+  )}&separator=${encodeURIComponent(getOrElse(urlParams, "separator", " "))}`;
+  window.history.pushState({}, "", newUrl);
+};
+
+const getOrElse = (urlParams, name, defaultValue) =>
+  urlParams.get(name) || defaultValue;
 
 const convertInput = (rawNotations) => {
   filters.forEach((filter) => {
