@@ -12,6 +12,9 @@ let style = styleOptions[styleInput.selectedIndex];
 const filters = ["HBS", "T!", "HD", ""];
 
 const additionalMoves = {
+  dash: "dash",
+  microdash: "micro dash",
+  deepdash: "deep dash",
   iws: "Instant while standing",
   H: "During Heat",
   R: "Rage",
@@ -80,7 +83,6 @@ const directions = {
   d: "↓",
   db: "↙",
   b: "←",
-  dash: "→→",
   qcf: "↓↘→",
   qcb: "↓↙←",
   hcf: "←↙↓↘→",
@@ -128,7 +130,7 @@ inputElement.addEventListener("keyup", (event) => {
   setUrl("notation", event.target.value);
 });
 
-resetButton.addEventListener("click", (event) => {
+resetButton.addEventListener("click", () => {
   outputContainer.replaceChildren();
   inputElement.value = "";
 });
@@ -151,10 +153,7 @@ const convertInput = (rawNotations) => {
   filters.forEach((filter) => {
     rawNotations = rawNotations.replaceAll(filter, "");
   });
-  // const splitNotationRegex = /([a-z])+|([1-4\+\,\~\-\/])+|([A-Z])*/g;
-  // const notationRegex = /([a-z])+|([1-4\+\,\-\/])+|([A-Z])+|([a-z0-9\~\+\!]+)/g;
   const notationRegex = /([a-z])+|([1-4\+\,\-\/])+|([a-zA-Z0-9\~\+\!\,\-\/])+/g;
-  // const notationRegex = /([a-zA-Z\~1-4\+\,\~\-\/])+/g;
   const directionRegex = /[a-z]/g;
   const holdDirectionRegex = /[A-Z]/g;
   const limbRegex = /[1-4]/g;
