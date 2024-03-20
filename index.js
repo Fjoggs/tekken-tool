@@ -160,12 +160,10 @@ const convertInput = (rawNotations) => {
   const limbRegex = /[1-4]/g;
   const notations = rawNotations.split(separator);
   notations.forEach((notation) => {
-    console.log("notation", notation);
     if (notation.length > 0) {
       const inputs = notation.match(notationRegex);
       if (inputs) {
         inputs.forEach((input) => {
-          console.log("input", input);
           if (additionalMoves.hasOwnProperty(input)) {
             const text = document.createElement("div");
             text.textContent = additionalMoves[input];
@@ -175,9 +173,22 @@ const convertInput = (rawNotations) => {
           } else if (input.search(holdDirectionRegex) !== -1) {
             addInput(input, holdDirections, addHoldDirection);
           } else if (input.search(limbRegex) !== -1) {
-            const splitNotationsByComma = input.split(",");
+            const splitNotationsByComma = input
+              .split(",")
+              .filter((entry) => entry); // Remove empty values;
             splitNotationsByComma.forEach((splitInput) => {
-              outputContainer.appendChild(addLimbInputs(splitInput));
+              if (splitInput.indexOf("+") !== -1) {
+                outputContainer.appendChild(addLimbInputs(splitInput));
+              } else {
+                for (
+                  let charIndex = 0;
+                  charIndex < splitInput.length;
+                  charIndex++
+                ) {
+                  const number = splitInput.charAt(charIndex);
+                  outputContainer.appendChild(addLimbInputs(number));
+                }
+              }
             });
           } else {
             console.log("no match", input);
