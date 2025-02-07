@@ -73,6 +73,10 @@ const additionalMoves = {
   "!": "Unblockable (modifier)",
 };
 
+const specialMoves = {
+  HB: "2+3",
+};
+
 const directions = {
   n: "★",
   ub: "↖",
@@ -139,9 +143,9 @@ const setUrl = (key, value) => {
   const urlParams = new URLSearchParams(window.location.search);
   urlParams.set(key, value);
   const newUrl = `?style=${encodeURIComponent(
-    getOrElse(urlParams, "style", "arcade")
+    getOrElse(urlParams, "style", "arcade"),
   )}&notation=${encodeURIComponent(
-    getOrElse(urlParams, "notation", "")
+    getOrElse(urlParams, "notation", ""),
   )}&separator=${encodeURIComponent(getOrElse(urlParams, "separator", " "))}`;
   window.history.pushState({}, "", newUrl);
 };
@@ -153,12 +157,26 @@ const convertInput = (rawNotations) => {
   filters.forEach((filter) => {
     rawNotations = rawNotations.replaceAll(filter, "");
   });
+  // for (let specialMove in specialMoves) {
+  //   const input = specialMoves[specialMove];
+  //   console.log("raw", rawNotations);
+  //   console.log("specialMove", specialMove);
+  //   console.log("input", input);
+  //   rawNotations.replaceAll(specialMove, input);
+  //   console.log("input added", input);
+  //   console.log("raw after", rawNotations);
+  // }
   const notationRegex = /([a-z])+|([1-4\+\,\-\/])+|([a-zA-Z0-9\~\+\!\,\-\/])+/g;
   const directionRegex = /[a-z]/g;
   const holdDirectionRegex = /[A-Z]/g;
   const limbRegex = /[1-4]/g;
   const notations = rawNotations.split(separator);
   notations.forEach((notation) => {
+    console.log("notation", notation);
+    if (specialMoves[notation]) {
+      console.log("yep");
+      outputContainer.appendChild(addLimbInputs(specialMoves[notation]));
+    }
     if (notation.length > 0) {
       const inputs = notation.match(notationRegex);
       if (inputs) {
