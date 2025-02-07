@@ -9,7 +9,11 @@ const styleOptions = ["arcade", "ps", "xbox", "keyboard"];
 let separator = separatorOptions[separatorInput.selectedIndex];
 let style = styleOptions[styleInput.selectedIndex];
 
-const filters = ["HBS", "T!", "HD", ""];
+const filters = ["HBS", "HD", ""];
+
+const icons = {
+  "T!": "tornado-mini.png",
+};
 
 const additionalMoves = {
   dash: "dash",
@@ -59,7 +63,6 @@ const additionalMoves = {
   is: "Intangible state",
   gs: "Grounded state",
   "S!": "Screw",
-  "T!": "Tornado",
   "W!": "Wall splat / Wall bounce",
   "WB!": "Wall break",
   "F!": "Floor break",
@@ -157,30 +160,25 @@ const convertInput = (rawNotations) => {
   filters.forEach((filter) => {
     rawNotations = rawNotations.replaceAll(filter, "");
   });
-  // for (let specialMove in specialMoves) {
-  //   const input = specialMoves[specialMove];
-  //   console.log("raw", rawNotations);
-  //   console.log("specialMove", specialMove);
-  //   console.log("input", input);
-  //   rawNotations.replaceAll(specialMove, input);
-  //   console.log("input added", input);
-  //   console.log("raw after", rawNotations);
-  // }
   const notationRegex = /([a-z])+|([1-4\+\,\-\/])+|([a-zA-Z0-9\~\+\!\,\-\/])+/g;
-  const directionRegex = /[a-z]/g;
-  const holdDirectionRegex = /[A-Z]/g;
+  const directionRegex = /[udfb]/g;
+  const holdDirectionRegex = /[UDFB]/g;
   const limbRegex = /[1-4]/g;
   const notations = rawNotations.split(separator);
   notations.forEach((notation) => {
-    console.log("notation", notation);
+    // console.log("notation", notation);
     if (specialMoves[notation]) {
-      console.log("yep");
       outputContainer.appendChild(addLimbInputs(specialMoves[notation]));
+    }
+    if (icons[notation]) {
+      outputContainer.appendChild(addIcon(icons[notation]));
     }
     if (notation.length > 0) {
       const inputs = notation.match(notationRegex);
       if (inputs) {
         inputs.forEach((input) => {
+          console.log("inuput", input);
+
           if (additionalMoves.hasOwnProperty(input)) {
             const text = document.createElement("div");
             text.textContent = additionalMoves[input];
@@ -266,6 +264,13 @@ const addHoldDirection = (notation) => {
   holdDirection.className = "direction";
   holdDirection.textContent = holdDirections[notation];
   return holdDirection;
+};
+
+const addIcon = (src) => {
+  const icon = document.createElement("img");
+  icon.src = src;
+  icon.alt = "Tornado";
+  return icon;
 };
 
 const addLimbInputs = (notation) => {
