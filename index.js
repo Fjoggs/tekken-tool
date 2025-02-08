@@ -3,11 +3,13 @@ const resetButton = document.getElementById("reset");
 const outputContainer = document.getElementById("outputContainer");
 const separatorInput = document.getElementById("separator");
 const styleInput = document.getElementById("input-style");
+const inputsOnlyCheckBox = document.getElementById("inputs-only");
 const separatorOptions = [" ", ";"];
 const styleOptions = ["arcade", "ps", "xbox", "keyboard"];
 
 let separator = separatorOptions[separatorInput.selectedIndex];
 let style = styleOptions[styleInput.selectedIndex];
+let inputsOnly = inputsOnlyCheckBox.checked;
 
 const filters = ["HBS", "HD", ""];
 
@@ -16,21 +18,30 @@ const icons = {
 };
 
 const additionalMoves = {
+  iws: "Instant while standing",
+  WS: "While standing",
+  ws: "While standing",
+  FC: "Full crouch",
+  fc: "Full crouch",
+  hFC: "Half crouch",
+  hfc: "Half crouch",
+  SS: "Sidestep",
+  ss: "Sidestep",
+  SSL: "Sidestep left",
+  ssl: "Sidestep left",
+  SSR: "Sidestep right",
+  ssr: "Sidestep right",
+};
+
+const info = {
   dash: "dash",
   microdash: "micro dash",
   deepdash: "deep dash",
-  iws: "Instant while standing",
   H: "During Heat",
   R: "Rage",
   P: "Successfully parry",
   J: "Jumping",
-  WS: "While standing",
-  FC: "Full crouch",
-  hFC: "Half crouch",
   BT: "Back turned",
-  SS: "Sidestep",
-  SSL: "Sidestep left",
-  SSR: "Sidestep right",
   FUFT: "Face up, feet towards",
   FUFA: "Face up, feet away",
   FDFT: "Face down, feet towards",
@@ -79,6 +90,8 @@ const additionalMoves = {
 const specialMoves = {
   HB: "2+3",
 };
+
+const specialStances = ["HBS"];
 
 const directions = {
   n: "★",
@@ -142,6 +155,14 @@ resetButton.addEventListener("click", () => {
   inputElement.value = "";
 });
 
+inputsOnlyCheckBox.addEventListener("change", () => {
+  inputsOnly = !inputsOnly;
+  outputContainer.replaceChildren();
+  convertInput(inputElement.value);
+});
+
+const inputOutput = {};
+
 const setUrl = (key, value) => {
   const urlParams = new URLSearchParams(window.location.search);
   urlParams.set(key, value);
@@ -157,33 +178,83 @@ const getOrElse = (urlParams, name, defaultValue) =>
   urlParams.get(name) || defaultValue;
 
 const convertInput = (rawNotations) => {
-  filters.forEach((filter) => {
-    rawNotations = rawNotations.replaceAll(filter, "");
-  });
+  if (inputsOnly) {
+    filters.forEach((filter) => {
+      rawNotations = rawNotations.replaceAll(filter, "");
+    });
+  }
   const notationRegex = /([a-z])+|([1-4\+\,\-\/])+|([a-zA-Z0-9\~\+\!\,\-\/])+/g;
   const directionRegex = /[udfb]/g;
   const holdDirectionRegex = /[UDFB]/g;
   const limbRegex = /[1-4]/g;
   const notations = rawNotations.split(separator);
+
   notations.forEach((notation) => {
-    // console.log("notation", notation);
     if (specialMoves[notation]) {
-      outputContainer.appendChild(addLimbInputs(specialMoves[notation]));
+      const specialMoveOutput = addLimbInputs(specialMoves[notation]);
+      outputContainer.appendChild(specialMoveOutput);
+      addArrow();
+      inputOutput[notation] = specialMoveOutput;
+      console.log("inputOutput", inputOutput);
+
+      return;
     }
+
     if (icons[notation]) {
-      outputContainer.appendChild(addIcon(icons[notation]));
+      if (inputsOnly) {
+        // Ignore it
+        return;
+      } else {
+        outputContainer.appendChild(addIcon(icons[notation]));
+      }
+      addArrow();
+      return;
     }
+
+    specialStances.forEach((specialStance) => {
+      console.log("stance", specialStance);
+      if (notation.includes(specialStance)) {
+        if (inputsOnly) {
+          console.log("specialStances inputs only", notation);
+          // Ignore it
+          return;
+        } else {
+          const text = document.createElement("div");
+          text.textContent = specialStance;
+          outputContainer.appendChild(text);
+          console.log("notation", notation);
+        }
+        notation = notation.replaceAll(specialStance, "");
+      }
+    });
+
+    for (const additionalMove in additionalMoves) {
+      if (notation.includes(additionalMove)) {
+        if (inputsOnly && !notation.includes("FC")) {
+          // Combos with FC require that info to work properly, do not ignore
+          console.log("additionalMoves inputs only", notation);
+        } else {
+          const text = document.createElement("div");
+          text.textContent = additionalMoves[additionalMove];
+          outputContainer.appendChild(text);
+        }
+        notation = notation.replaceAll(additionalMove, "");
+        console.log("notation", notation);
+      }
+    }
+
     if (notation.length > 0) {
       const inputs = notation.match(notationRegex);
       if (inputs) {
         inputs.forEach((input) => {
-          console.log("inuput", input);
+          console.log("input", input);
 
-          if (additionalMoves.hasOwnProperty(input)) {
-            const text = document.createElement("div");
-            text.textContent = additionalMoves[input];
-            outputContainer.appendChild(text);
-          } else if (input.search(directionRegex) !== -1) {
+          // if (additionalMoves[input]) {
+          //   const text = document.createElement("div");
+          //   text.textContent = additionalMoves[input];
+          //   outputContainer.appendChild(text);
+          // } else if (input.search(directionRegex) !== -1) {
+          if (input.search(directionRegex) !== -1) {
             addInput(input, directions, addDirection);
           } else if (input.search(holdDirectionRegex) !== -1) {
             addInput(input, holdDirections, addHoldDirection);
@@ -200,8 +271,12 @@ const convertInput = (rawNotations) => {
                   charIndex < splitInput.length;
                   charIndex++
                 ) {
-                  const number = splitInput.charAt(charIndex);
-                  outputContainer.appendChild(addLimbInputs(number));
+                  const inputChar = splitInput.charAt(charIndex);
+                  if (inputChar.search(limbRegex) !== -1) {
+                    // Notation like SIT1 ends up here, so check if the current char
+                    // actually is a number
+                    outputContainer.appendChild(addLimbInputs(inputChar));
+                  }
                 }
               }
             });

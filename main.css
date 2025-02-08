@@ -71,6 +71,15 @@ input {
   color: white;
 }
 
+.checkbox {
+  min-width: auto;
+  width: 20px;
+  height: 20px;
+  /* background-color: #505050; */
+  /* border: 0; */
+  /* border-radius: 7px; */
+}
+
 button {
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
